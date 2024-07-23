@@ -44,8 +44,11 @@ export class AgendaController {
   @Post()
   async create(@Body() dto: CreateAgendaDto) {
     try {
-      await this.agendaService.create(dto);
-      return this.responseService.success('Agenda created succesfully.');
+      const agenda = await this.agendaService.create(dto);
+      return this.responseService.success(
+        'Agenda created succesfully.',
+        agenda,
+      );
     } catch (error) {
       return this.responseService.error(error);
     }

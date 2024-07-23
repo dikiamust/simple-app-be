@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiController } from 'src/decorators';
 import { ApiVersion } from 'src/enums';
 
@@ -31,6 +31,7 @@ export class AuthController {
     }
   }
 
+  @HttpCode(200)
   @ResponseStatusCode()
   @Post('signin')
   async signin(@Body() dto: SigninDto) {
