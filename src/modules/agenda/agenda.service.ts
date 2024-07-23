@@ -1,8 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Agenda } from './entities/agenda.entity';
-import { AgendaQuery, CreateAgendaDto } from './dto';
+import { AgendaQuery, CreateAgendaDto, UpdateAgendaDto } from './dto';
 
 @Injectable()
 export class AgendaService {
@@ -15,8 +19,6 @@ export class AgendaService {
     try {
       return await this.agendaRepository.save(dto);
     } catch (error) {
-      if (error.driverError)
-        throw new BadRequestException(error.driverError.detail);
       throw error;
     }
   }
@@ -46,5 +48,43 @@ export class AgendaService {
       totalPage,
       data,
     };
+  }
+
+  async detail(agendaId: number) {
+    try {
+      const agenda = await this.agendaRepository.findOne({
+        where: { id: agendaId, deletedAt: IsNull() },
+      });
+
+      if (!agenda) throw new NotFoundException('Agenda not found.');
+
+      return agenda;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(agendaId: number, dto: UpdateAgendaDto) {
+    try {
+      const agenda = await this.detail(agendaId);
+
+      await this.agendaRepository.update(agendaId, dto);
+
+      return agenda;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(agendaId: number) {
+    try {
+      const agenda = await this.detail(agendaId);
+
+      await this.agendaRepository.update(agendaId, { deletedAt: new Date() });
+
+      return agenda;
+    } catch (error) {
+      throw error;
+    }
   }
 }

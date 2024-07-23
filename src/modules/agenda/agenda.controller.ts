@@ -1,12 +1,21 @@
-import { Controller, Get, Query, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Body,
+  Delete,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiVersion } from 'src/enums';
 import { ApiController } from 'src/decorators';
 import { ResponseStatusCode } from 'src/decorators/response.decorator';
 import { ResponseService } from 'src/response/response.service';
 import { AgendaService } from './agenda.service';
-import { AgendaQuery, CreateAgendaDto } from './dto';
-import { agenda, getAll } from './response-example';
+import { AgendaQuery, CreateAgendaDto, UpdateAgendaDto } from './dto';
+import { created, deleted, getAll, updated } from './response-example';
 
 @Controller({ path: 'agenda', version: ApiVersion.V1 })
 @ApiController({ tag: 'Agenda', version: ApiVersion.V1 })
@@ -24,7 +33,7 @@ export class AgendaController {
     description: 'Success Response',
     content: {
       'application/json': {
-        example: agenda,
+        example: created,
       },
     },
   })
@@ -62,6 +71,51 @@ export class AgendaController {
         currentPage,
         data,
       );
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ApiOperation({
+    description: 'Update Agenda',
+  })
+  @ApiOkResponse({
+    description: 'Success Response',
+    content: {
+      'application/json': {
+        example: updated,
+      },
+    },
+  })
+  @Patch(':agendaId')
+  async update(
+    @Param('agendaId') agendaId: number,
+    @Body() dto: UpdateAgendaDto,
+  ) {
+    try {
+      await this.agendaService.update(agendaId, dto);
+      return this.responseService.success('Agenda updated succesfully.');
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ApiOperation({
+    description: 'Delete Agenda',
+  })
+  @ApiOkResponse({
+    description: 'Success Response',
+    content: {
+      'application/json': {
+        example: deleted,
+      },
+    },
+  })
+  @Delete(':agendaId')
+  async delete(@Param('agendaId') agendaId: number) {
+    try {
+      await this.agendaService.delete(agendaId);
+      return this.responseService.success('Agenda deleted succesfully.');
     } catch (error) {
       return this.responseService.error(error);
     }
