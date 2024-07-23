@@ -7,8 +7,9 @@ import {
   Delete,
   Param,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiVersion } from 'src/enums';
 import { ApiController } from 'src/decorators';
 import { ResponseStatusCode } from 'src/decorators/response.decorator';
@@ -16,6 +17,7 @@ import { ResponseService } from 'src/response/response.service';
 import { AgendaService } from './agenda.service';
 import { AgendaQuery, CreateAgendaDto, UpdateAgendaDto } from './dto';
 import { created, deleted, getAll, updated } from './response-example';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller({ path: 'agenda', version: ApiVersion.V1 })
 @ApiController({ tag: 'Agenda', version: ApiVersion.V1 })
@@ -37,6 +39,8 @@ export class AgendaController {
       },
     },
   })
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(@Body() dto: CreateAgendaDto) {
     try {
@@ -58,7 +62,7 @@ export class AgendaController {
       },
     },
   })
-  @Get()
+  @Get('public')
   async getAll(@Query() query: AgendaQuery) {
     try {
       const { currentPage, totalPage, data } = await this.agendaService.getAll(
@@ -87,6 +91,8 @@ export class AgendaController {
       },
     },
   })
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':agendaId')
   async update(
     @Param('agendaId') agendaId: number,
@@ -111,6 +117,8 @@ export class AgendaController {
       },
     },
   })
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':agendaId')
   async delete(@Param('agendaId') agendaId: number) {
     try {
