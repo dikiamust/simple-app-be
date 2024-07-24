@@ -84,6 +84,30 @@ export class AgendaController {
   }
 
   @ApiOperation({
+    description: 'Detail Agenda',
+  })
+  @ApiOkResponse({
+    description: 'Success Response',
+    content: {
+      'application/json': {
+        example: created,
+      },
+    },
+  })
+  @Get(':agendaId/public')
+  async detail(@Param('agendaId') agendaId: number) {
+    try {
+      const agenda = await this.agendaService.detail(agendaId);
+      return this.responseService.success(
+        'Detail agenda updated succesfully retrieved!.',
+        agenda,
+      );
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ApiOperation({
     description: 'Update Agenda',
   })
   @ApiOkResponse({
