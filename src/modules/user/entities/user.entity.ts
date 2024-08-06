@@ -12,9 +12,15 @@ export class User extends Basic {
   @Column({ type: 'text' })
   password?: string;
 
-  @Column({ type: 'integer', name: 'role_id' })
-  roleId: number;
-
   @Column({ type: 'text' })
   salt?: string;
+
+  @Column({ type: 'boolean', name: 'is_email_verified', default: false })
+  isEmailVerified: boolean;
+
+  @Column({ default: 0, name: 'login_count' })
+  loginCount: number;
+
+  @Column({ type: 'timestamptz', name: 'logout_at', nullable: true })
+  logoutAt?: Date;
 }

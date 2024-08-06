@@ -6,9 +6,7 @@ import { LoggerMiddleware } from './utils';
 import { typeOrmAsyncConfig } from './database/typeorm-config';
 import { ResponseModule } from './response/response.module';
 import { UserModule } from './modules/user/user.module';
-import { RoleModule } from './modules/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { AgendaModule } from './modules/agenda/agenda.module';
 
 @Module({
   imports: [
@@ -16,9 +14,7 @@ import { AgendaModule } from './modules/agenda/agenda.module';
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     ResponseModule,
     UserModule,
-    RoleModule,
     AuthModule,
-    AgendaModule,
   ],
   controllers: [AppController],
 })

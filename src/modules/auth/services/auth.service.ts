@@ -1,6 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { SigninDto, SignupDto } from '../dto';
+import { ResetPasswordDto, SigninDto, SignupDto } from '../dto';
 import { TokenAuthService } from './token-auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,10 +29,9 @@ export class AuthService {
       email,
       password: hash,
       salt,
-      roleId: 1,
     });
 
-    const token = await this.tokenAuthService.signToken(user.id, user.roleId);
+    const token = await this.tokenAuthService.signToken(user.id);
 
     return { token };
   }
@@ -52,8 +55,47 @@ export class AuthService {
       );
     }
 
-    const token = await this.tokenAuthService.signToken(user.id, user.roleId);
+    const token = await this.tokenAuthService.signToken(user.id);
+
+    await this.userRepository.update(user.id, {
+      loginCount: user.loginCount + 1,
+    });
 
     return { token };
+  }
+
+  async resetPassword(dto: ResetPasswordDto, userId: number) {
+    const { oldPassword, newPassword, confirmNewPassword } = dto;
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user.password) {
+      throw new ForbiddenException();
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      throw new ForbiddenException('The password you provided is incorrect.');
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException(
+        'The new password and confirmation password do not match.',
+      );
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(newPassword, salt);
+
+    await this.userRepository.update(userId, {
+      salt,
+      password: hash,
+    });
+  }
+
+  async logout(userId: number) {
+    await this.userRepository.update(userId, {
+      logoutAt: new Date(),
+    });
   }
 }

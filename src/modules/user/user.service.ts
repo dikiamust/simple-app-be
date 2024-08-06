@@ -18,7 +18,16 @@ export class UserService {
 
     const qb = this.userRepository
       .createQueryBuilder('user')
-      .select(['user.id', 'user.name', 'user.email', 'user.createdAt']);
+      .select([
+        'user.id',
+        'user.name',
+        'user.email',
+        'user.createdAt',
+        'user.loginCount',
+        'user.logoutAt',
+        'user.isEmailVerified',
+      ]);
+    // .select(['user.id', 'user.name', 'user.email', 'user.createdAt']);
 
     if (query?.keyword) {
       qb.andWhere('user.name ILIKE :keyword', {

@@ -1,5 +1,5 @@
 export interface IUserData {
-  userId: string;
+  userId: number;
 
   iat: Date;
 

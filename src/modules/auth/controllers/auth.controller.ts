@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common';
 import { ApiController } from 'src/decorators';
 import { ApiVersion } from 'src/enums';
 
@@ -9,7 +9,7 @@ import {
 import { ResponseService } from 'src/response/response.service';
 import { AuthService } from '../services';
 
-import { SigninDto, SignupDto } from '../dto';
+import { ResetPasswordDto, SigninDto, SignupDto } from '../dto';
 
 @Controller({ path: 'auth', version: ApiVersion.V1 })
 @ApiController({ tag: 'Auth', version: ApiVersion.V1 })
@@ -25,7 +25,7 @@ export class AuthController {
     try {
       const result = await this.authService.signup(dto);
 
-      return this.responseService.success('success signup', result);
+      return this.responseService.success('Registration successful.', result);
     } catch (error) {
       return this.responseService.error(error);
     }
@@ -38,7 +38,30 @@ export class AuthController {
     try {
       const result = await this.authService.signin(dto);
 
-      return this.responseService.success('success login', result);
+      return this.responseService.success('Login successful.', result);
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ResponseStatusCode()
+  @Put('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    try {
+      await this.authService.resetPassword(dto, 1);
+
+      return this.responseService.success('Password reset successful.');
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ResponseStatusCode()
+  @Put('logout')
+  async logout() {
+    try {
+      await this.authService.logout(1);
+      return this.responseService.success('Logout successful.');
     } catch (error) {
       return this.responseService.error(error);
     }
