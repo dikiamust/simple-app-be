@@ -102,7 +102,10 @@ export class SocialAuthService {
   }
 
   private async registerNewUserWithFacebook(facebookUser: any, email: string) {
-    const name = `${facebookUser.first_name} ${facebookUser.last_name}`;
+    const name =
+      `${facebookUser.first_name} ${facebookUser.last_name}` ||
+      email?.split('@')[0];
+
     const newUser = await this.userRepository.save({
       name,
       email,
@@ -129,7 +132,6 @@ export class SocialAuthService {
   async googleAuth({ idToken }: GoogleAuthDto) {
     const googleUser = await this.verifyGoogleToken(idToken);
     const email = googleUser.getPayload().email;
-    const a = googleUser.getPayload().name || email?.split('@')[0];
 
     if (!email) {
       throw new UnauthorizedException('Invalid Google token: email not found');
@@ -201,7 +203,7 @@ export class SocialAuthService {
   }
 
   private async registerNewUserWithGoogle(googleUser: any, email: string) {
-    const name = googleUser?.getPayload()?.name;
+    const name = googleUser.getPayload().name || email?.split('@')[0];
     const newUser = await this.userRepository.save({
       name,
       email,

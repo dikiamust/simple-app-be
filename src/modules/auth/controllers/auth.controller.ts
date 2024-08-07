@@ -1,5 +1,12 @@
-import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common';
-import { ApiController } from 'src/decorators';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiController, User } from 'src/decorators';
 import { ApiVersion } from 'src/enums';
 
 import {
@@ -10,6 +17,9 @@ import { ResponseService } from 'src/response/response.service';
 import { AuthService } from '../services';
 
 import { ResetPasswordDto, SigninDto, SignupDto } from '../dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { IUserData } from 'src/guards/strategy/interface/user-data.interface';
 
 @Controller({ path: 'auth', version: ApiVersion.V1 })
 @ApiController({ tag: 'Auth', version: ApiVersion.V1 })
@@ -58,9 +68,11 @@ export class AuthController {
 
   @ResponseStatusCode()
   @Put('logout')
-  async logout() {
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@User() user: IUserData) {
     try {
-      await this.authService.logout(1);
+      await this.authService.logout(user.userId);
       return this.responseService.success('Logout successful.');
     } catch (error) {
       return this.responseService.error(error);

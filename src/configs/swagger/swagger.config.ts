@@ -6,7 +6,7 @@ import { SwaggerConfig } from './swagger.interface';
  * Change this to suit your app!
  */
 export const SWAGGER_CONFIG: SwaggerConfig = {
-  title: 'Event-Management-Backend',
+  title: 'Simple-App-Backend',
   description: 'Backend built using NestJs + PostgreSql + TypeOrm',
   version: '1.0',
   tags: [],
@@ -18,7 +18,7 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
 };
 
 export const swaggerCustomOptions: SwaggerCustomOptions = {
-  customSiteTitle: 'Event-Management-Backend | Docs - Swagger',
+  customSiteTitle: 'Simple-App-Backend | Docs - Swagger',
   swaggerOptions: {
     docExpansion: 'none',
     persistAuthorization: true,

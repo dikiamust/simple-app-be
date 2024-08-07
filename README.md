@@ -2,7 +2,7 @@
   <a href="https://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-# Event-Management | Backend
+# Simple-App | Backend
 
 ## Table Of Contents
 
@@ -60,7 +60,7 @@ Voluntario-Backend developed with NestJS, Typeorm & PostgreSQl.
 ### Clone
 
 ```sh
-git clone https://github.com/dikiamust/event-management-be
+git clone https://github.com/dikiamust/simple-app-be
 
 cd event-management-be
 ```
