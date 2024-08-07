@@ -9,6 +9,7 @@ import { TokenAuthService } from './token-auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/modules/user/entities/user.entity';
+import { sendEmail } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,13 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto): Promise<{ token: string }> {
-    const { name, email, password } = dto;
+    const { name, email, password, confirmPassword } = dto;
+
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        'The password and confirmation password do not match.',
+      );
+    }
 
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
@@ -32,6 +39,16 @@ export class AuthService {
     });
 
     const token = await this.tokenAuthService.signToken(user.id);
+
+    const mailOptions = {
+      to: email,
+      from: process.env.MAIL_FROM,
+      subject: 'Welcome to Simple-App',
+    };
+
+    const template = `src/modules/auth/template/email-verification.template.html`;
+    const data = { link: 'https://google.com' };
+    sendEmail(template, data, mailOptions);
 
     return { token };
   }

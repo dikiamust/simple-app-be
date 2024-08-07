@@ -10,7 +10,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { SocialAuthService } from '../services/social-auth.service';
 import { ApiController } from 'src/decorators';
 
-@Controller({ path: 'auth/social', version: ApiVersion.V1 })
+@Controller({ path: 'auth', version: ApiVersion.V1 })
 @ApiController({ tag: 'Auth', version: ApiVersion.V1 })
 export class SocialAuthController {
   constructor(

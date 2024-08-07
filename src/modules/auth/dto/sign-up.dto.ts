@@ -16,4 +16,9 @@ export class SignupDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @ApiProperty({ example: '12345678' })
+  @IsString()
+  @IsNotEmpty()
+  confirmPassword: string;
 }
