@@ -6,7 +6,7 @@ import { ApiController } from 'src/decorators';
 import { ResponseStatusCode } from 'src/decorators/response.decorator';
 import { ResponseService } from 'src/response/response.service';
 import { UserQuery } from './dto';
-import { getAll } from './response-example';
+import { getAll, getUserStatistics } from './response-example';
 
 @Controller({ path: 'user', version: ApiVersion.V1 })
 @ApiController({ tag: 'User', version: ApiVersion.V1 })
@@ -40,6 +40,31 @@ export class UserController {
         totalPage,
         currentPage,
         data,
+      );
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ApiOperation({
+    description: 'Get user statistics',
+  })
+  @ApiOkResponse({
+    description: 'Success Response',
+    content: {
+      'application/json': {
+        example: getUserStatistics,
+      },
+    },
+  })
+  @Get('statistic')
+  async getUserStatistics() {
+    try {
+      const result = await this.userService.getUserStatistics();
+
+      return this.responseService.success(
+        'Get user statistics successfully retrieved!',
+        result,
       );
     } catch (error) {
       return this.responseService.error(error);

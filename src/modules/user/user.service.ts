@@ -48,4 +48,31 @@ export class UserService {
       data,
     };
   }
+
+  async getUserStatistics() {
+    const totalUsers = await this.userRepository.query(
+      `SELECT COUNT(*) FROM users`,
+    );
+
+    const activeSessionsToday = await this.userRepository.query(
+      `SELECT COUNT(*) FROM users WHERE login_at::date <= CURRENT_DATE AND (logout_at IS NULL OR logout_at::date >= CURRENT_DATE)`,
+    );
+
+    const averageActiveSessionsLast7Days = await this.userRepository.query(
+      `SELECT AVG(daily_sessions) FROM (
+         SELECT COUNT(*) AS daily_sessions
+         FROM users
+         WHERE login_at >= NOW() - INTERVAL '7 days'
+         GROUP BY date_trunc('day', login_at)
+      ) AS daily_session_counts`,
+    );
+
+    return {
+      totalUsers: parseInt(totalUsers[0].count, 10),
+      activeSessionsToday: parseInt(activeSessionsToday[0].count, 10),
+      averageActiveSessionsLast7Days: parseFloat(
+        averageActiveSessionsLast7Days[0].avg || '0',
+      ),
+    };
+  }
 }

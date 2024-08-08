@@ -67,20 +67,7 @@ cd event-management-be
 
 ### Environment Variables
 
-```sh
-# APP CONFIG
-PORT=3000
-BASE_URL=http://localhost:3000
-NODE_ENV=development
-
-# DB CONFIG
-DATABASE_URL=
-
-# JWT CONFIG
-JWT_SECRET='super-secret'
-JWT_EXPIRES_IN='1d'
-
-```
+You can see it in the .env.example file
 
 ```sh
 cp .env.example .env

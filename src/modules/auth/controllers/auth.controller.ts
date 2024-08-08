@@ -27,6 +27,7 @@ import {
   ResetPasswordDto,
   SigninDto,
   SignupDto,
+  UpdateUsernameDto,
 } from '../dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -118,6 +119,35 @@ export class AuthController {
     try {
       await this.authService.logout(user.userId);
       return this.responseService.success('Logout successful.');
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ResponseStatusCode()
+  @Get('my-profile')
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
+  async myProfile(@User() user: IUserData) {
+    try {
+      const result = await this.authService.myProfile(user.userId);
+      return this.responseService.success(
+        'User profile retrieved successful.',
+        result,
+      );
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @ResponseStatusCode()
+  @Put('update-profile')
+  @ApiBearerAuth('authorization')
+  @UseGuards(AuthGuard('jwt'))
+  async updateProfile(@User() user: IUserData, @Body() dto: UpdateUsernameDto) {
+    try {
+      await this.authService.updateUsername(user.userId, dto);
+      return this.responseService.success('User profile updated successful.');
     } catch (error) {
       return this.responseService.error(error);
     }

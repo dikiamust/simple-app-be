@@ -10,6 +10,7 @@ import {
   ResetPasswordDto,
   SigninDto,
   SignupDto,
+  UpdateUsernameDto,
 } from '../dto';
 import { TokenAuthService } from './token-auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -85,19 +86,21 @@ export class AuthService {
     const userId = decoded?.userId;
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      select: { id: true },
+      select: { id: true, loginCount: true },
     });
 
     if (!user) {
       throw new BadRequestException('Invalid verification token.');
     }
 
-    return await this.emailVerified(userId);
+    return await this.emailVerified(userId, user.loginCount);
   }
 
-  async emailVerified(userId: number) {
+  async emailVerified(userId: number, loginCount: number) {
     return await this.userRepository.update(userId, {
       isEmailVerified: true,
+      loginCount: loginCount + 1,
+      loginAt: new Date(),
     });
   }
 
@@ -117,6 +120,12 @@ export class AuthService {
       );
     }
 
+    if (!user.password) {
+      throw new ForbiddenException(
+        'Since your account registration uses Google/Facebook, you need to request a password first.',
+      );
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -133,6 +142,7 @@ export class AuthService {
 
     await this.userRepository.update(user.id, {
       loginCount: user.loginCount + 1,
+      loginAt: new Date(),
     });
 
     return { token };
@@ -170,6 +180,19 @@ export class AuthService {
   async logout(userId: number) {
     await this.userRepository.update(userId, {
       logoutAt: new Date(),
+    });
+  }
+
+  async myProfile(userId: number) {
+    return await this.userRepository.findOne({
+      where: { id: userId },
+      select: { name: true, email: true },
+    });
+  }
+
+  async updateUsername(userId: number, dto: UpdateUsernameDto) {
+    await this.userRepository.update(userId, {
+      name: dto.name,
     });
   }
 }

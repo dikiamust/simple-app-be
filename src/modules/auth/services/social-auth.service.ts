@@ -119,7 +119,7 @@ export class SocialAuthService {
     });
 
     const token = await this.tokenAuthService.signToken(newUser.id);
-
+    await this.loginCount(newUser);
     return {
       message: 'Registration with Facebook successful.',
       data: {
@@ -217,7 +217,7 @@ export class SocialAuthService {
     });
 
     const token = await this.tokenAuthService.signToken(newUser.id);
-
+    await this.loginCount(newUser);
     return {
       message: 'Registration with Google successful.',
       data: {
@@ -228,8 +228,9 @@ export class SocialAuthService {
   }
 
   private async loginCount(user: User) {
-    return await this.userRepository.update(user.id, {
+    await this.userRepository.update(user.id, {
       loginCount: user.loginCount + 1,
+      loginAt: new Date(),
     });
   }
 }

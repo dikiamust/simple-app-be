@@ -22,6 +22,9 @@ export class User extends Basic {
   @Column({ default: 0, name: 'login_count' })
   loginCount: number;
 
+  @Column({ type: 'timestamptz', name: 'login_at', nullable: true })
+  loginAt?: Date;
+
   @Column({ type: 'timestamptz', name: 'logout_at', nullable: true })
   logoutAt?: Date;
 
