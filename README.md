@@ -21,7 +21,45 @@
 
 ## Intro
 
-Voluntario-Backend developed with NestJS, Typeorm & PostgreSQl.
+# Simple-App
+
+**Simple-App** is a lightweight backend application developed using NestJS, TypeORM, and PostgreSQL. The project provides essential user management features, including authentication, user statistics, and profile management.
+
+## Features
+
+### Authentication
+
+- **Sign Up & Login:**
+  - **Email & Password:** Users can sign up and log in using their email and a user-defined password. Upon registration, the user will receive an email verification link.
+  - **Google OAuth:** Users can sign up and log in using their Google account, bypassing the need for email verification.
+  - **Facebook OAuth:** Users can sign up and log in using their Facebook account, also bypassing email verification.
+
+### Dashboard
+
+Once logged in, users are redirected to a personalized dashboard where they can access the following:
+
+- **User Profile:**
+
+  - View their username and email.
+
+- **User List:**
+
+  - View a list of all users registered in the application, with the following details for each user:
+    - **Sign-Up Timestamp:** The date and time when the user signed up.
+    - **Login Count:** The number of times the user has logged in.
+    - **Logout Timestamp:** The last time the user logged out.
+
+- **User Statistics:**
+  - **Total Registered Users:** The total number of users who have signed up.
+  - **Active Sessions Today:** The total number of users with active sessions today.
+  - **Average Active Sessions (Last 7 Days):** The average number of users with active sessions over the last 7 days.
+
+### Profile Management
+
+- **Resend Email Verification Link**
+- **Reset Password:** Users can reset their password using the provided form. They need to input their old password, new password, and confirm the new password.
+- **Update Username:** Users can change their username.
+- **Logout:** Users can securely log out from the application.
 
 ## Requirements
 
@@ -62,7 +100,7 @@ Voluntario-Backend developed with NestJS, Typeorm & PostgreSQl.
 ```sh
 git clone https://github.com/dikiamust/simple-app-be
 
-cd event-management-be
+cd simple-app-be
 ```
 
 ### Environment Variables
