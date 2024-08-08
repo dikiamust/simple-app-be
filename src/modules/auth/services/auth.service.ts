@@ -191,7 +191,7 @@ export class AuthService {
   }
 
   async updateUsername(userId: number, dto: UpdateUsernameDto) {
-    await this.userRepository.update(userId, {
+    return await this.userRepository.update(userId, {
       name: dto.name,
     });
   }

@@ -64,7 +64,7 @@ export class AuthController {
         throw new BadRequestException('Email verification failed.');
       }
 
-      return { url: `${process.env.FE_URL}/dashboard` };
+      return { url: `${process.env.FE_URL}/dashboard?token=${token}` };
     } catch (error) {
       return this.responseService.error(error);
     }
@@ -147,7 +147,10 @@ export class AuthController {
   async updateProfile(@User() user: IUserData, @Body() dto: UpdateUsernameDto) {
     try {
       await this.authService.updateUsername(user.userId, dto);
-      return this.responseService.success('User profile updated successful.');
+      return this.responseService.success(
+        'User profile updated successful.',
+        dto,
+      );
     } catch (error) {
       return this.responseService.error(error);
     }
