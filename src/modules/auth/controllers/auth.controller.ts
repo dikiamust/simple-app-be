@@ -1,10 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
   Put,
+  Query,
+  Redirect,
   UseGuards,
+  Version,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ApiController, User } from 'src/decorators';
 import { ApiVersion } from 'src/enums';
@@ -16,7 +22,12 @@ import {
 import { ResponseService } from 'src/response/response.service';
 import { AuthService } from '../services';
 
-import { ResetPasswordDto, SigninDto, SignupDto } from '../dto';
+import {
+  ReRendEmailVerificationLinkDto,
+  ResetPasswordDto,
+  SigninDto,
+  SignupDto,
+} from '../dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { IUserData } from 'src/guards/strategy/interface/user-data.interface';
@@ -36,6 +47,39 @@ export class AuthController {
       const result = await this.authService.signup(dto);
 
       return this.responseService.success('Registration successful.', result);
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @Version(VERSION_NEUTRAL)
+  @Redirect('')
+  @ResponseStatusCode()
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    try {
+      const result = await this.authService.emailVerifiedByToken(token);
+      if (!result) {
+        throw new BadRequestException('Email verification failed.');
+      }
+
+      return { url: `${process.env.FE_URL}/dashboard` };
+    } catch (error) {
+      return this.responseService.error(error);
+    }
+  }
+
+  @HttpCode(200)
+  @ResponseStatusCode()
+  @Post('resend/email-verification-link')
+  async reRendEmailVerificationLink(
+    @Body() dto: ReRendEmailVerificationLinkDto,
+  ) {
+    try {
+      await this.authService.reRendEmailVerificationLink(dto);
+      return this.responseService.success(
+        'Resend Email Verification Link successful.',
+      );
     } catch (error) {
       return this.responseService.error(error);
     }

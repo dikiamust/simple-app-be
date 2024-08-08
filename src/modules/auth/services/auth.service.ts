@@ -2,9 +2,15 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { ResetPasswordDto, SigninDto, SignupDto } from '../dto';
+import {
+  ReRendEmailVerificationLinkDto,
+  ResetPasswordDto,
+  SigninDto,
+  SignupDto,
+} from '../dto';
 import { TokenAuthService } from './token-auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -39,7 +45,11 @@ export class AuthService {
     });
 
     const token = await this.tokenAuthService.signToken(user.id);
+    await this.sendEmailVerificationLink(email, token);
+    return { token };
+  }
 
+  async sendEmailVerificationLink(email: string, token: string) {
     const mailOptions = {
       to: email,
       from: process.env.MAIL_FROM,
@@ -47,20 +57,63 @@ export class AuthService {
     };
 
     const template = `src/modules/auth/template/email-verification.template.html`;
-    const data = { link: 'https://google.com' };
+    const verificationLink = `${process.env.BASE_URL}/auth/verify-email?token=${token}`;
+    const data = { verificationLink };
     sendEmail(template, data, mailOptions);
+  }
 
-    return { token };
+  async reRendEmailVerificationLink(dto: ReRendEmailVerificationLinkDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+      select: { id: true, isEmailVerified: true },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('The email you provided is not registered.');
+    }
+
+    if (user.isEmailVerified) {
+      throw new ForbiddenException('The email you provided has been verified.');
+    }
+
+    const token = await this.tokenAuthService.signToken(user.id);
+    await this.sendEmailVerificationLink(dto.email, token);
+  }
+
+  async emailVerifiedByToken(token: string) {
+    const decoded = await this.tokenAuthService.decodeToken(token);
+    const userId = decoded?.userId;
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token.');
+    }
+
+    return await this.emailVerified(userId);
+  }
+
+  async emailVerified(userId: number) {
+    return await this.userRepository.update(userId, {
+      isEmailVerified: true,
+    });
   }
 
   async signin(dto: SigninDto): Promise<{ token: string }> {
-    const { email, password } = dto;
+    const { email, password, confirmPassword } = dto;
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        'The password and confirmation password do not match.',
+      );
+    }
 
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
       throw new ForbiddenException(
-        'The email or password you provided is incorrect. Please double-check your login credentials and try again.',
+        'The email or password you provided is incorrect.',
       );
     }
 
@@ -68,8 +121,12 @@ export class AuthService {
 
     if (!isMatch) {
       throw new ForbiddenException(
-        'The email or password you provided is incorrect. Please double-check your login credentials and try again.',
+        'The email or password you provided is incorrect.',
       );
+    }
+
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Your email has not been verified. ');
     }
 
     const token = await this.tokenAuthService.signToken(user.id);
